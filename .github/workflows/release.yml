@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Release
+    strategy:
+      matrix:
+        node-version: [10.22]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Setup Node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '10.22'
+
+      - name: Cache node modules
+        uses: actions/cache@v2.1.6
+        with:
+          path: node_modules
+          key: yarn-deps-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            yarn-deps-${{ hashFiles('yarn.lock') }}
+
+      - name: Install deps
+        run: |
+          yarn --frozen-lockfile --ignore-scripts --ignore-engines
+        env:
+          CI: true
+
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v2
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.GH_NPM_TOKEN }}
+      
+      - name: Extract NPM name
+        if: steps.semantic.outputs.new_release_published == 'true'
+        id: pkg
+        run: |
+          NAME=`node -e "console.log(require('./package.json').name)"`
+          echo "::set-output name=name::${NAME}"
+
+      - name: Slack Notification
+        uses: bryannice/gitactions-slack-notification@2.0.0
+        if: steps.semantic.outputs.new_release_published == 'true'
+        env:
+          SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PUBLISH }}
+          SLACK_TITLE: 'Github release'
+          SLACK_MESSAGE: ${{ format('Publish {0}@{1}', steps.pkg.outputs.name, steps.semantic.outputs.new_release_version) }}
+          SLACK_ICON: 'https://github.com/<Github User>.png?size=48'
+          SLACK_CHANNEL: github
+          SLACK_COLOR: '#efefef'
+          SLACK_USERNAME: github
+          GITHUB_ACTOR: ${GITHUB_ACTOR}
+          GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}
+          GITHUB_REF: ${GITHUB_REF}
+          GITHUB_ACTION: ${GITHUB_ACTION}
+          GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}
+          GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}

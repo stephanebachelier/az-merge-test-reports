@@ -1,0 +1,56 @@
+name: CI / CD
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [10.22, 12, 14]
+    name: Node ${{matrix.node}} test run
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Setup Node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Cache node modules
+        uses: actions/cache@v2.1.6
+        with:
+          path: node_modules
+          key: yarn-deps-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            yarn-deps-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Install deps
+        run: |
+          yarn --frozen-lockfile --ignore-scripts --ignore-engines
+        env:
+          CI: true
+
+      - name: Lint code
+        run: |
+          yarn lint
+
+      - name: Lint lock file
+        run: |
+          yarn lint:lockfile
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
