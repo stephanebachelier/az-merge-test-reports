@@ -1,0 +1,148 @@
+{
+  "name": "az-merge-test-reports",
+  "version": "0.1.0",
+  "description": "Merge multiple azure test reports",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stephanebachelier/az-merge-test-reports.git"
+  },
+  "author": "stephane.bachelier@gmail.com",
+  "source": "lib/index.js",
+  "license": "Apache-2",
+  "bin": {
+    "azMergeTestReports": "./cli.js"
+  },
+  "engines": {
+    "node": ">=10.16"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "azure",
+    "report",
+    "merge",
+    "testsuite",
+    "test"
+  ],
+  "scripts": {
+    "test": "jest",
+    "lint": "standard {lib,test}/**/*.js | snazzy",
+    "lint:ci": "standard {lib,test}/**",
+    "lint:lockfile": "lockfile-lint --path yarn.lock --allowed-hosts yarn registry.npmjs.com --allowed-schemes 'https:' 'git+https:'",
+    "format": "prettier --write lib/**/*.js",
+    "sr": "semantic-release",
+    "sec": "snyk test",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release"
+  },
+  "dependencies": {
+    "debug": "^4.3.2",
+    "fs-extra": "9.1.0",
+    "html-escaper": "^3.0.3",
+    "lodash": "^4.17.21",
+    "saxes": "^5.0.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/github": "7.2.1",
+    "@semantic-release/npm": "7.1.1",
+    "babel-eslint": "8.2.6",
+    "cz-conventional-changelog": "^3.2.0",
+    "git-cz": "^4.6.2",
+    "husky": "^4.2.5",
+    "jest": "24.5.0",
+    "jest-chain": "1.1.2",
+    "jest-extended": "0.11.1",
+    "jest-junit": "6.3.0",
+    "jsonlint": "1.6.3",
+    "lint-staged": "^10.2.9",
+    "lockfile-lint": "^4.2.2",
+    "npm-merge-driver": "^2.3.5",
+    "prettier": "^2.2.1",
+    "semantic-release": "17.3.6",
+    "snazzy": "8.0.0",
+    "snyk": "^1.336.0",
+    "standard": "11.0.1",
+    "yaml-lint": "1.2.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "jest-extended",
+      "jest-chain"
+    ],
+    "modulePaths": [
+      "<rootDir>/lib",
+      "node_modules"
+    ],
+    "testRegex": [
+      "/test/**/(.*).test.js$"
+    ],
+    "verbose": true,
+    "restoreMocks": true,
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "html",
+      "cobertura"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint --env HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged && git add --patch",
+      "post-commit": "git update-index -g",
+      "pre-push": "yarn run lint"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "yarn lint:ci --fix"
+    ],
+    "*.json": [
+      "jsonlint",
+      "prettier --write"
+    ],
+    "*.yaml": [
+      "yamllint",
+      "prettier --write"
+    ]
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "**/node_modules/**"
+    ],
+    "global": [
+      "jest",
+      "afterAll",
+      "afterEach",
+      "beforeAll",
+      "beforeEach",
+      "describe",
+      "test",
+      "expect"
+    ]
+  },
+  "resolutions": {
+    "fs-extra": "9.1.0"
+  }
+}
