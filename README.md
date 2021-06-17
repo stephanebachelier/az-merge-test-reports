@@ -1,0 +1,1 @@
+# az-merge-test-reports
