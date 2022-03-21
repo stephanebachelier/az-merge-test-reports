@@ -22,7 +22,7 @@ jobs:
           node-version: '10.22'
 
       - name: Cache node modules
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: yarn-deps-${{ hashFiles('yarn.lock') }}
