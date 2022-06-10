@@ -67,7 +67,7 @@
     "lockfile-lint": "^4.2.2",
     "npm-merge-driver": "^2.3.5",
     "prettier": "^2.2.1",
-    "semantic-release": "17.3.6",
+    "semantic-release": "19.0.3",
     "snazzy": "8.0.0",
     "snyk": "^1.336.0",
     "standard": "11.0.1",
